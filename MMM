@@ -1,0 +1,122 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+import java.util.function.Function;
+import java.util.function.IntPredicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+class CombiningPredicates {
+
+//    private final Class<T> type;
+//
+//    public GenericClass(Class<T> type) {
+//        this.type = type;
+//    }
+//
+//    public Class<T> getMyType() {
+//        return this.type;
+//    }
+
+
+    public static <T> List<String> appe(T x,List<String> ll) {
+        if (ll.size() == 0) {
+            List<String> res = new ArrayList<>();
+            res.add(String.valueOf(x));
+            return res;
+        } else {
+            return ll.stream().map(n -> String.valueOf(x) + n).collect(Collectors.toList());
+        }
+    }
+
+//    @SuppressWarnings("unchecked")
+    public static <T> List<String> permu(T[] permui){
+        List<String> res = new ArrayList<>();
+        if(permui.length == 2) {
+//            List<String> rr = new ArrayList<>(2);
+            res.add(String.valueOf(permui[0]) + String.valueOf(permui[1]));
+            res.add(String.valueOf(permui[1]) + String.valueOf(permui[0]));
+            return res;
+        }
+        T[] nn;
+        for (int i=0; i<permui.length; i++){
+//            nn = new T[permui.length - 1];
+//            nn  = Array.newInstance( permui[0].class, permui.length - 1);
+              nn = (T[])new Object[permui.length - 1];
+            for(int j=0, ii=0 ; j<permui.length ; j++){
+                if(j == i){
+                    continue;
+                }else{
+                    nn[ii] = permui[j];
+                    ii++;
+                }
+            }
+            res.addAll( appe(permui[i] ,permu(nn) ) );
+        }
+        return  res;
+    }
+
+
+    // Don't change the code below
+    public static void main(String[] args) {
+
+//        Integer[] aa= new Integer[]{1,5,7,9};
+        Character[] aa= new Character[]{'A','B','C','D'};
+
+//        Stream ss = permu(aa).stream();
+//        List<Character> data = (List<Character>)ss.collect(Collectors.toList());
+        System.out.println(  permu(aa).stream().count() - permu(aa).stream().distinct().count()  );
+
+//        permu(aa).forEach( x -> System.out.println(x));
+
+        //Function<Integer, Integer> next = n -> n + 1;
+        //Function<Integer, Integer> previous = n -> n - 1;
+        //Function<Integer, Integer> square = n -> n * n;
+        //Function<Integer, Integer> mult3 = n -> n * 3;
+        //Function<Integer, Integer> bigFunction =
+        //        square.andThen(previous).andThen(mult3);
+        //System.out.println(bigFunction.apply(5));
+
+        Scanner scanner = new Scanner(System.in);
+
+        String[] strings = scanner.nextLine().split(" ");
+
+        List<Boolean> values = Arrays.stream(strings)
+                .map(Boolean::parseBoolean)
+                .collect(Collectors.toList());
+
+        List<IntPredicate> predicates = new ArrayList<>();
+        values.forEach(v -> predicates.add(x -> v));
+
+        System.out.println(disjunctAll(predicates).test(0));
+    }
+
+    static  int fac(int n){
+        int res = 1;
+        for(int i=n;i>0;i--){
+            res *= i;
+        }
+        return res;
+    }
+
+    /**
+     * The method represents a disjunct operator for a list of predicates.
+     * For an empty list it returns the always false predicate.
+     */
+    public static IntPredicate disjunctAll(List<IntPredicate> predicates) {
+        if(predicates.size() == 0){
+            return (i)->{return false;};
+        }else {
+            return (int i)->{
+                for(IntPredicate p : predicates){
+                    if(p.test(i) == true){
+                        return true;
+                    }
+                }
+                return false;
+            };
+        }
+    }
+}
